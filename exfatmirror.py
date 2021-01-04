@@ -36,23 +36,26 @@ def destination(src, dst, path):
     rp = [d] + [sanitise(p) for p in sanitise_parts]
     return Path(*rp)
 
-def step(src, dst, walkstep):
+def step(src, dst, walkstep): # TODO return data from which report can be constructed
     root, dirs, files = walkstep
     dst_root = destination(src, dst, root)
-    print('copying from: ' + root)
-    print('to: ' + str(dst_root))
     for d in dirs:
         if d.startswith('.'): continue 
         dst_d = destination(src, dst, Path(root, d))
-        if os.path.exists(dst_d): continue
+        if os.path.exists(dst_d):
+            print('skipping: ' + d + ' -> ' + str(dst_d))
+            continue
+        print('creating: ' + d + ' -> ' + str(dst_d))
         os.mkdir(dst_d)
     for f in files:
         if f.startswith('.'): continue
         dst_f = destination(src, dst, Path(root, f))
-        if os.path.exists(dst_f): continue
+        if os.path.exists(dst_f):
+            continue
+        print('copying: ' + f + ' -> ' + str(dst_f))
         shutil.copy(Path(root,f), dst_f)
 
-if __name__ = "__main__":
+if __name__ == "__main__":
     src, dst = sys.argv[:2]
     assert(os.path.exists(src))
     assert(os.path.exists(dst))
